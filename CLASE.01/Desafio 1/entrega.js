@@ -40,19 +40,24 @@ async getProductosById(id_producto){
     try {
         const productos = await this.getProductos()
         let producto = productos.find (producto => producto.id === id_producto)
+        if (!producto) {
+          console.log("No existe el producto")
+        }
         return producto;
-      } catch (error) {		return console.log ("Producto no encontrado")	
+      } catch (error) {	
+        console.log (error)	
+        return null
       }
 }
 
 async updateProducto(id_producto,nProducto){
     try {
         const productos = await this.getProductos()
-        let producto = productos.find (producto => producto.id === id_producto)
-        let productoModificado = {...producto, ...nProducto};
+        let producto = productos.findIndex (producto => producto.id === id_producto)
+        let productoModificado = {...productos[producto], ...nProducto};
         
 
-	    productos[index] = productoModificado;			
+	    productos[producto] = productoModificado;			
         await fs.promises.writeFile(this.path, JSON.stringify(productos, null,2), 'utf8');
       } catch (error) {		console.log("No se pudo modificar el producto")
       }
@@ -63,9 +68,10 @@ async deleteProducto(id_producto){
     try {
         const productos = await this.getProductos()
         let indexProductoAEliminar = productos.findIndex (producto => producto.id === id_producto)
-        productos.splice(indexProductoAEliminar, 1)
-
+        productos.splice(indexProductoAEliminar, 1);   
         await fs.promises.writeFile(this.path, JSON.stringify(productos, null,2), 'utf8');
+        return `Producto con ID ${id_producto} eliminado`;
+
       } catch (error) {	console.log ("No se pudo eliminar el producto")
       }
 }
@@ -105,7 +111,7 @@ await productManager.addProducto({
   console.log(productos);
 
 
-  const getProductosID = await productManager.getProductosById(5) 
+  const getProductosID = await productManager.getProductosById(2) 
   console.log(getProductosID);
 
   const modificarProd = await productManager.updateProducto(1, { 
