@@ -15,13 +15,13 @@ class ProductManager {
       return console.error("producto incompleto");
     }
 
-    const productos = await this.getProductos();	
+    const productos = await this.getProductos();
     let idProducto = productos.length;
         const nuevoProducto = {
         ...producto,
         id : idProducto++
        }
-   
+
     productos.push(nuevoProducto);			
     await fs.promises.writeFile(this.path, JSON.stringify(productos, null,2), 'utf8');  
 }
@@ -41,20 +41,16 @@ async getProductosById(id_producto){
         const productos = await this.getProductos()
         let producto = productos.find (producto => producto.id === id_producto)
         return producto;
-      } catch (error) {		console.log ("Producto no encontrado")	
+      } catch (error) {		return console.log ("Producto no encontrado")	
       }
 }
 
-async updateProducto(id_producto,nTitle,nPrice,nStock,nCode,nThumbnail){
+async updateProducto(id_producto,nProducto){
     try {
         const productos = await this.getProductos()
-        let producto = productos.findIndex (producto => producto.id === id_producto)
-        let productoModificado = {...producto};
-        productoModificado.title = nTitle;
-        productoModificado.price = nPrice;
-        productoModificado.stock = nStock;
-        productoModificado.code =nCode;
-        productoModificado.thumbnail = nThumbnail;
+        let producto = productos.find (producto => producto.id === id_producto)
+        let productoModificado = {...producto, ...nProducto};
+        
 
 	    productos[index] = productoModificado;			
         await fs.promises.writeFile(this.path, JSON.stringify(productos, null,2), 'utf8');
@@ -96,18 +92,35 @@ const test = async () => {
     stock: 22,
     code : 4456,
 });
+
+await productManager.addProducto({					
+  title: 'hhghhhto',
+  description :"dfhhd 2009",
+  price : 45500,
+  thumbnail: "imahn",
+  stock: 212,
+  code : 41456,
+});
   const productos = await productManager.getProductos();			
   console.log(productos);
 
 
-  const getProductosID = await productManager.getProductosById(1) 
+  const getProductosID = await productManager.getProductosById(5) 
   console.log(getProductosID);
 
-  const modificarProd = await productManager.updateProducto(1,"camioneta", 600, 5, 852, "otraImagen")
+  const modificarProd = await productManager.updateProducto(1, { 
+    title : "camioneta",
+    price : 5000,
+    stock : 3,
+    code : 40 
+  })
   console.log (modificarProd);
 
-  const productoAEliminado = await productManager.deleteProducto(1)
+  const productoAEliminado = await productManager.deleteProducto(0)
   console.log(productoAEliminado);
+
+  const nuevaLista = await productManager.getProductos();
+  console.log(nuevaLista)
 }
 
 test ();
